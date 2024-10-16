@@ -1,8 +1,8 @@
-CARAVEL_ROOT: /usr/caravel_user_project/caravel
-MCW_ROOT: /usr/caravel_user_project/mgmt_core_wrapper
+CARAVEL_ROOT: /home/labuser/uniccass24-simplecpu/caravel
+MCW_ROOT: /home/labuser/uniccass24-simplecpu/mgmt_core_wrapper
 PDK: sky130A
-PDK_ROOT: /usr/pdk
-USER_PROJECT_ROOT: /usr/caravel_user_project
+PDK_ROOT: /home/labuser/PDK
+USER_PROJECT_ROOT: /home/labuser/uniccass24-simplecpu
 caravan: false
 clk: 25
 emailto:
