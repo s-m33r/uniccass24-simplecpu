@@ -79,8 +79,6 @@ assign load_ram = la_data_in[0];
 assign load_addr = la_data_in[4:1];
 assign load_data = la_data_in[12:5];
 
-wire cpu_reset;
-assign cpu_reset = la_data_in[13];
 
 reg [7:0] ram [0:15];
 
@@ -92,6 +90,9 @@ always @(*) begin
 end
 
 // CPU registers and flags
+wire clock;
+assign clock = la_data_in[14];
+
 reg [3:0] pc_reg;
 reg [7:0] a_reg;
 reg [7:0] b_reg;
@@ -102,6 +103,9 @@ wire flag_zero;
 reg  sub_op;
 wire [7:0] alu_out;
 
+wire cpu_reset;
+assign cpu_reset = la_data_in[13];
+
 alu ALU (
     .a          (a_reg     ),
     .b          (b_reg     ),
@@ -111,10 +115,10 @@ alu ALU (
     .flag_carry (flag_carry)
 );
 
-assign la_data_out[7:0] =  a_reg;
-assign la_data_out[13:8] = b_reg;
-assign la_data_out[15:14] = {flag_carry, flag_zero};
-assign la_data_out[23:16] = out_reg;
+//assign la_data_out[7:0] =  a_reg;
+//assign la_data_out[13:8] = b_reg;
+//assign la_data_out[15:14] = {flag_carry, flag_zero};
+//assign la_data_out[23:16] = out_reg;
 
 // helper logic to extract instruction and operand
 wire instruction;
@@ -130,8 +134,8 @@ reg [3:0] prev_op;
 
 reg cpu_halt;
 
-always @(posedge wb_clk_i) begin
-	if (cpu_reset) begin
+always @(posedge clock) begin
+	if (~cpu_reset) begin
 	    cpu_halt <= 0;
 
 	    a_reg <= 0;
@@ -140,7 +144,7 @@ always @(posedge wb_clk_i) begin
 
 	    sub_op <= 0;
 
-	    cycle_half <= 0;
+	    cycle_half <= CYCLE_1;
 	    prev_op <= 0;
 	end
 
@@ -149,14 +153,18 @@ always @(posedge wb_clk_i) begin
 	end
 
 	else if ( cycle_half == CYCLE_1 ) begin
+		$display("cpu running");
+
 		case (instruction)
 			4'b0000: begin
 			    $display("NOP");
+				pc_reg <= pc_reg + 1;
 			end
 
 			4'b0001: begin
 			    $display("LDA");
 			    a_reg <= ram[operand];
+				pc_reg <= pc_reg + 1;
 			end
 
 			4'b0010: begin // { a_reg <= alu_out } handled in 2nd cycle
@@ -173,11 +181,13 @@ always @(posedge wb_clk_i) begin
 			4'b0100: begin
 			    $display("STA");
 			    ram[operand] <= a_reg;
+				pc_reg <= pc_reg + 1;
 			end
 
 			4'b0101: begin
 			    $display("LDI");
 			    a_reg <= operand;
+				pc_reg <= pc_reg + 1;
 			end
 
 			4'b0110: begin
@@ -193,6 +203,7 @@ always @(posedge wb_clk_i) begin
 			4'b1000: begin
 			    $display("OUT");
 			    out_reg <= a_reg;
+				pc_reg <= pc_reg + 1;
 			end
 
 			4'b1001: begin
@@ -208,14 +219,16 @@ always @(posedge wb_clk_i) begin
 	else if (cycle_half == CYCLE_2) begin
 
 	    case (prev_op)
-		4'b0010: begin
-		    a_reg <= alu_out;
-		end
+			4'b0010: begin
+			    a_reg <= alu_out;
+				pc_reg <= pc_reg + 1;
+			end
 
-		4'b0011: begin
-		    a_reg <= alu_out;
-			sub_op <= 0;
-		end
+			4'b0011: begin
+			    a_reg <= alu_out;
+				sub_op <= 0;
+				pc_reg <= pc_reg + 1;
+			end
 	    endcase
 
 	    cycle_half <= CYCLE_1;

@@ -116,21 +116,34 @@ void main()
 		0xff
     };
 
-    // set load_ram
-    reg_la0_data = 0x00000000;
+	// load RAM into CPU
+	// set cpu_reset to 0 (active-low)
+    // set  load_ram to 0
+	uint32_t default_cpu_reset = 0x00000000;
+
+    reg_la0_data = default_cpu_reset;
 
     // set lines with delay
     for (i=0; i<16; i++) {
 		uint32_t address = (uint32_t)i << 1;
 		uint32_t data = (uint32_t)memory[i] << 5;
 
-		uint32_t output = data ^ address + 1;
-        reg_la0_data = output;
+        reg_la0_data ^= data ^ address + 1;
         for (j=0; j<4; j++) {} // delay
 
-        reg_la0_data = 0x00000000;
+        reg_la0_data = default_cpu_reset;
         for (j=0; j<4; j++) {} // delay
     }
+
+	// release reset and pulse clock
+	uint32_t default_cpu_running = 0x00002000;
+	reg_la0_data = default_cpu_running;
+	uint32_t clock = 0;
+
+	for (i=0; i<32; i++) {
+		clock = (clock) ? 0 : 1;
+		reg_la0_data = default_cpu_running ^ clock << 14;
+	}
 
     // DELAY
     for (i=0; i<10; i=i+1) {}
