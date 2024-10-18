@@ -86,8 +86,8 @@ reg [7:0] ram [0:15];
 
 always @(*) begin
     if (load_ram) begin
-	$display("ram[%x] = %x", load_addr, load_data);
-	ram[load_addr] = load_data;
+	$display("ram[%b] = %b", load_addr, load_data);
+	ram[load_addr] <= load_data;
     end
 end
 
@@ -201,6 +201,7 @@ always @(posedge wb_clk_i) begin
 			end
 		endcase
 
+		prev_op <= instruction;
 		cycle_half <= CYCLE_2;
 	end
 
@@ -213,6 +214,7 @@ always @(posedge wb_clk_i) begin
 
 		4'b0011: begin
 		    a_reg <= alu_out;
+			sub_op <= 0;
 		end
 	    endcase
 

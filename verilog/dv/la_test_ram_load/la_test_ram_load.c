@@ -96,58 +96,42 @@ void main()
 	// Configure LA[0]..LA[12] as outputs from the cpu
 	reg_la0_oenb = reg_la0_iena = 0x00000fff; 
 
-        // DELAY
-        for (i=0; i<5; i=i+1) {}
+    // RAM data
+    uint8_t memory[16] = {
+		0x1f, // LDA 15
+		0x90, // HLT
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0xff
+    };
 
-        // RAM data
-        uint8_t program[16] = {
-                0x1f, // LDA 15
-                0x90, // HLT
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xff
-        };
+    // set load_ram
+    reg_la0_data = 0x00000000;
 
-	// // Toggle clk & de-assert reset
-	// for (i=0; i<11; i=i+1) {
-	// 	clk = !clk;
-	// 	reg_la2_data = 0x00000000 | clk;
-	// }
+    // set lines with delay
+    for (i=0; i<16; i++) {
+		uint32_t address = (uint32_t)i << 1;
+		uint32_t data = (uint32_t)memory[i] << 5;
 
-        // set load_ram
-        reg_la0_data - 0x00000001;
+		uint32_t output = data ^ address + 1;
+        reg_la0_data = output;
+        for (j=0; j<4; j++) {} // delay
 
-        // set lines with delay
-        for (i=0; i<16; i++) {
-                reg_la0_data = (program[i] << 5) & (i << 1) & reg_la0_data;
-                for (j=0; i<5; i=i+1) {} // delay
-                reg_la0_data - 0x00000000;
-                for (j=0; i<5; i=i+1) {} // delay
-                reg_la0_data - 0x00000001;
-        }
+        reg_la0_data = 0x00000000;
+        for (j=0; j<4; j++) {} // delay
+    }
 
-        /*
-        // reg_mprj_datal = 0xAB610000;
-        while (1){
-                if (reg_la0_data_in >= 0x05) {
-                        reg_mprj_datal = 0xAB610000;
-                        break;
-                }
-                
-        }
-        */
-
-        // DELAY
-        for (i=0; i<10; i=i+1) {}
+    // DELAY
+    for (i=0; i<10; i=i+1) {}
 }

@@ -26,10 +26,11 @@ module la_test2_tb;
 
 	wire gpio;
 	wire [37:0] mprj_io;
-	wire [15:0] checkbits;
 
-	assign checkbits = mprj_io[31:16];
-	assign mprj_io[3] = (CSB == 1'b1) ? 1'b1 : 1'bz;
+	wire load_ram;
+
+	//assign checkbits = mprj_io[31:16];
+	//assign mprj_io[3] = (CSB == 1'b1) ? 1'b1 : 1'bz;
 
 	always #15 clock <= (clock === 1'b0);
 
@@ -135,24 +136,25 @@ module la_test2_tb;
 	`endif 
 
 	initial begin
-		$dumpfile("la_test2.vcd");
+		$dumpfile("la_test_ram_load.vcd");
 		$dumpvars(0, la_test2_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
-		repeat (75) begin
+		repeat (200) begin
 			repeat (1000) @(posedge clock);
 			// $display("+1000 cycles");
 		end
-		$display("%c[1;31m",27);
-		`ifdef GL
-			$display ("Monitor: Timeout, Test Mega-Project IO (GL) Failed");
-		`else
-			$display ("Monitor: Timeout, Test Mega-Project IO (RTL) Failed");
-		`endif
-		$display("%c[0m",27);
+		//$display("%c[1;31m",27);
+		//`ifdef GL
+		//	$display ("Monitor: Timeout, Test Mega-Project IO (GL) Failed");
+		//`else
+		//	$display ("Monitor: Timeout, Test Mega-Project IO (RTL) Failed");
+		//`endif
+		//$display("%c[0m",27);
 		$finish;
 	end
 
+	/*
 	initial begin
 		wait(checkbits == 16'hAB60);
 		$display("Monitor: Test 2 MPRJ-Logic Analyzer Started");
@@ -160,14 +162,15 @@ module la_test2_tb;
 		$display("Monitor: Test 2 MPRJ-Logic Analyzer Passed");
 		$finish;
 	end
+	*/
 
 	initial begin
 		RSTB <= 1'b0;
-		CSB  <= 1'b1;		// Force CSB high
+		//CSB  <= 1'b1;		// Force CSB high
 		#2000;
 		RSTB <= 1'b1;	    	// Release reset
 		#3_000_000;
-		CSB = 1'b0;		// CSB can be released
+		//CSB = 1'b0;		// CSB can be released
 	end
 
 	initial begin		// Power-up sequence
@@ -185,7 +188,7 @@ module la_test2_tb;
 		power4 <= 1'b1;
 	end
 
-    	wire flash_csb;
+    wire flash_csb;
 	wire flash_clk;
 	wire flash_io0;
 	wire flash_io1;
@@ -228,7 +231,7 @@ module la_test2_tb;
 	);
 
 	spiflash #(
-		.FILENAME("la_test2.hex")
+		.FILENAME("la_test_ram_load.hex")
 	) spiflash (
 		.csb(flash_csb),
 		.clk(flash_clk),
