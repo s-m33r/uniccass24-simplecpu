@@ -94,7 +94,7 @@ void main()
 	reg_mprj_datal = 0xAB600000;
 
 	// Configure LA[0]..LA[13] as outputs from the cpu
-	reg_la0_oenb = reg_la0_iena = 0x00001fff; 
+	reg_la0_oenb = reg_la0_iena = 0x00003fff; 
 
     // RAM data
     uint8_t memory[16] = {
