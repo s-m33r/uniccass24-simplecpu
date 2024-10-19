@@ -3,12 +3,13 @@
     "DESIGN_IS_CORE": 0,
     "VERILOG_FILES": [
         "dir::../../verilog/rtl/defines.v",
-        "dir::../../verilog/rtl/user_proj_example.v",
-        "dir::../../verilog/rtl/wb_ram.v"
+        "dir::../../verilog/rtl/alu.v",
+        "dir::../../verilog/rtl/simplecpu.v",
+        "dir::../../verilog/rtl/user_proj_example.v"
     ],
     "CLOCK_PERIOD": 25,
     "CLOCK_PORT": "wb_clk_i",
-    "CLOCK_NET": "counter.clk",
+    "CLOCK_NET": "simplecpu.clock",
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 2800 1760",
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
