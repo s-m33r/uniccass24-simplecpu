@@ -93,8 +93,8 @@ void main()
 	// Flag start of the test
 	reg_mprj_datal = 0xAB600000;
 
-	// Configure LA[0]..LA[12] as outputs from the cpu
-	reg_la0_oenb = reg_la0_iena = 0x00000fff; 
+	// Configure LA[0]..LA[13] as outputs from the cpu
+	reg_la0_oenb = reg_la0_iena = 0x00001fff; 
 
     // RAM data
     uint8_t memory[16] = {
@@ -135,15 +135,8 @@ void main()
         for (j=0; j<4; j++) {} // delay
     }
 
-	// release reset and pulse clock
+	// release reset and let CPU execute
 	uint32_t default_cpu_running = 0x00002000;
-	reg_la0_data = default_cpu_running;
-	uint32_t clock = 0;
-
-	for (i=0; i<32; i++) {
-		clock = (clock) ? 0 : 1;
-		reg_la0_data = default_cpu_running ^ clock << 14;
-	}
 
     // DELAY
     for (i=0; i<10; i=i+1) {}

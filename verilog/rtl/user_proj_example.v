@@ -70,6 +70,15 @@ module user_proj_example #(
     output [2:0] irq
 );
 
+simplecpu uut (
+	.clock     (wb_clk_i        ),
+	.reset     (la_data_in[13]  ),
+	.load_ram  (la_data_in[0]   ),
+	.load_addr (la_data_in[4:1] ),
+	.load_data (la_data_in[12:5])
+);
+
+/*
 // RAM loading signals
 wire load_ram;
 wire [3:0] load_addr;
@@ -91,7 +100,8 @@ end
 
 // CPU registers and flags
 wire clock;
-assign clock = la_data_in[14];
+//assign clock = la_data_in[14];
+assign clock = wb_clk_i;
 
 reg [3:0] pc_reg;
 reg [7:0] a_reg;
@@ -121,8 +131,8 @@ alu ALU (
 //assign la_data_out[23:16] = out_reg;
 
 // helper logic to extract instruction and operand
-wire instruction;
-wire operand;
+wire [3:0] instruction;
+wire [3:0] operand;
 assign instruction = ram[pc_reg][7:4];
 assign operand = ram[pc_reg][3:0];
 
@@ -149,7 +159,7 @@ always @(posedge clock) begin
 	end
 
 	else if (cpu_halt) begin
-	    /* trap state */
+	    // trap state
 	end
 
 	else if ( cycle_half == CYCLE_1 ) begin
@@ -234,6 +244,7 @@ always @(posedge clock) begin
 	    cycle_half <= CYCLE_1;
 	end
 end
+*/
 
 endmodule
 `default_nettype wire
