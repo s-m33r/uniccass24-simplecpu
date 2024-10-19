@@ -1,5 +1,21 @@
+// SPDX-FileCopyrightText: 2020 Efabless Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
+`default_nettype none
+
 module simplecpu (
-	input clock,
+	input clk,
 	input reset,
 	
 	input load_ram,
@@ -7,12 +23,15 @@ module simplecpu (
 	input [7:0] load_data
 );
 
+wire clock;
+assign clock = clk;
+
 reg [7:0] ram [0:15];
 
-always @(*) begin
-    if (load_ram) begin
-	$display("ram[%b] = %b", load_addr, load_data);
-	ram[load_addr] <= load_data;
+always @(posedge clock) begin
+    if (~reset & load_ram) begin
+		$display("ram[%b] = %b", load_addr, load_data);
+		ram[load_addr] <= load_data;
     end
 end
 
@@ -44,8 +63,8 @@ alu ALU (
 // helper logic to extract instruction and operand
 wire [3:0] instruction;
 wire [3:0] operand;
-assign instruction = ram[pc_reg][7:4];
-assign operand = ram[pc_reg][3:0];
+assign instruction = (~reset) ? 4'bz : ram[pc_reg][7:4];
+assign operand     = (~reset) ? 4'bz : ram[pc_reg][3:0];
 
 // control flow
 localparam CYCLE_1 = 1'b0;
@@ -105,7 +124,7 @@ always @(posedge clock) begin
 
 			4'b0101: begin
 			    $display("LDI");
-			    a_reg <= operand;
+			    a_reg <= 8'h0 ^ operand;
 				pc_reg <= pc_reg + 1;
 			end
 
@@ -137,18 +156,15 @@ always @(posedge clock) begin
 
 	else if (cycle_half == CYCLE_2) begin
 
-	    case (prev_op)
-			4'b0010: begin
-			    a_reg <= alu_out;
-				pc_reg <= pc_reg + 1;
-			end
-
-			4'b0011: begin
-			    a_reg <= alu_out;
-				sub_op <= 0;
-				pc_reg <= pc_reg + 1;
-			end
-	    endcase
+		if (prev_op == 4'b0010) begin
+			a_reg <= alu_out;
+			pc_reg <= pc_reg + 1;
+		end
+		else if (prev_op == 4'b0011) begin
+			a_reg <= alu_out;
+			sub_op <= 0;
+			pc_reg <= pc_reg + 1;
+		end
 
 	    cycle_half <= CYCLE_1;
 
@@ -158,3 +174,4 @@ always @(posedge clock) begin
 end
 
 endmodule
+`default_nettype wire

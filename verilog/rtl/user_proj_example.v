@@ -35,9 +35,7 @@
  *-------------------------------------------------------------
  */
 
-module user_proj_example #(
-    parameter BITS = 16
-)(
+module user_proj_example (
 `ifdef USE_POWER_PINS
     inout vccd1,	// User area 1 1.8V supply
     inout vssd1,	// User area 1 digital ground
@@ -45,33 +43,24 @@ module user_proj_example #(
 
     // Wishbone Slave ports (WB MI A)
     input         wb_clk_i,
-    input         wb_rst_i,
-
-    input         wbs_stb_i,
-    input         wbs_cyc_i,
-    input         wbs_we_i,
-    input   [3:0] wbs_sel_i,
-    input  [31:0] wbs_dat_i,
-    input  [31:0] wbs_adr_i,
-    output        wbs_ack_o,
-    output [31:0] wbs_dat_o,
+    //input         wb_rst_i,
 
     // Logic Analyzer Signals
-    input  [127:0] la_data_in,
-    output [127:0] la_data_out,
-    input  [127:0] la_oenb,
+    input  [13:0] la_data_in
+    //output [127:0] la_data_out,
+    //input  [127:0] la_oenb,
 
     // IOs
-    input  [BITS-1:0] io_in,
-    output [BITS-1:0] io_out,
-    output [BITS-1:0] io_oeb,
+    //input  [BITS-1:0] io_in,
+    //output [BITS-1:0] io_out,
+    //output [BITS-1:0] io_oeb,
 
     // IRQ
-    output [2:0] irq
+    //output [2:0] irq
 );
 
-simplecpu uut (
-	.clock     (wb_clk_i        ),
+simplecpu simplecpu (
+	.clk       (wb_clk_i        ),
 	.reset     (la_data_in[13]  ),
 	.load_ram  (la_data_in[0]   ),
 	.load_addr (la_data_in[4:1] ),
