@@ -1,9 +1,0 @@
-CARAVEL_ROOT: /home/labuser/uniccass24-simplecpu/caravel
-MCW_ROOT: /home/labuser/uniccass24-simplecpu/mgmt_core_wrapper
-PDK: sky130A
-PDK_ROOT: /home/labuser/PDK
-USER_PROJECT_ROOT: /home/labuser/uniccass24-simplecpu
-caravan: false
-clk: 25
-emailto:
-- null
