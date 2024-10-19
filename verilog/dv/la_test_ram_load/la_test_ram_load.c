@@ -137,6 +137,7 @@ void main()
 
 	// release reset and let CPU execute
 	uint32_t default_cpu_running = 0x00002000;
+	reg_la0_data = default_cpu_running;
 
     // DELAY
     for (i=0; i<10; i=i+1) {}
