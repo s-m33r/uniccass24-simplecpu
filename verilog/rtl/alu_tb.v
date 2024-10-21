@@ -12,26 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
-`default_nettype none
+`timescale 1ns/1ps
 
-module alu (
-    input wire [7:0] a,
-    input wire [7:0] b,
-    input sub,
-    
-    output wire [7:0] out,
-    output flag_zero,
-    output flag_carry 
+module alu_tb();
+
+reg [7:0] a;
+reg [7:0] b;
+reg sub;
+
+
+wire [7:0] out;
+wire flag_zero;
+wire flag_carry;
+
+alu dut (
+	.a(a),
+	.b(b),
+	.sub(sub),
+
+	.out(out),
+	.flag_zero(flag_zero),
+	.flag_carry(flag_carry)
 );
 
-    wire [7:0] bTwosComplement;
-    wire [7:0] sub8 = {8{sub}};
+initial begin
+	a = 1;
+	b = 2;
+	sub = 1;
+	#10
+	$display(out);
+	$display(flag_carry);
+	$display(flag_zero);
+end
 
-    assign bTwosComplement = b ^ sub8;
-
-    assign out = a + bTwosComplement + {7'b0, sub};
-
-    assign flag_zero = &(~out);
-    assign flag_carry = (a[7] & b[7] & !out[7]) | (!a[7] & !b[7] & out[7]);
 endmodule
-`default_nettype wire

@@ -20,7 +20,10 @@ module simplecpu (
 	
 	input       load_ram,
 	input [3:0] load_addr,
-	input [7:0] load_data
+	input [7:0] load_data,
+
+	output [7:0] out_port,
+	output [7:0] io_oeb
 );
 
 reg [7:0] ram [0:15];
@@ -36,20 +39,26 @@ end
 reg [3:0] pc_reg;
 reg [7:0] a_reg;
 reg [7:0] b_reg;
-reg [7:0] out_reg;
 
-wire flag_carry;
-wire flag_zero;
+reg [7:0] out_reg;
+assign out_port = out_reg;
+assign io_oeb = 7'd0; // enable given output lines
+
+reg flag_carry;
+reg flag_zero;
+
+wire flag_carry_w;
+wire flag_zero_w;
 reg  sub_op;
 wire [7:0] alu_out;
 
 alu ALU (
-    .a          (a_reg     ),
-    .b          (b_reg     ),
-    .sub        (sub_op    ),
-    .out        (alu_out   ),
-    .flag_zero  (flag_zero ),
-    .flag_carry (flag_carry)
+    .a          (a_reg       ),
+    .b          (b_reg       ),
+    .sub        (sub_op      ),
+    .out        (alu_out     ),
+    .flag_zero  (flag_zero_w ),
+    .flag_carry (flag_carry_w)
 );
 
 // helper logic to extract instruction and operand
@@ -78,6 +87,9 @@ always @(posedge clk) begin
 	    a_reg <= 0;
 	    b_reg <= 0;
 	    pc_reg <= 0;
+
+		flag_carry <= 0;
+		flag_zero <= 0;
 
 	    sub_op <= 0;
 
@@ -136,22 +148,25 @@ always @(posedge clk) begin
 			end
 
 			4'b0111: begin
-			    $display("JZ");
-			    pc_reg <= (flag_zero) ? operand : pc_reg;
+			    $display("JC");
+			    pc_reg <= (flag_carry) ? operand : pc_reg + 1;
 			end
 
 			4'b1000: begin
+			    $display("JZ");
+			    pc_reg <= (flag_zero) ? operand : pc_reg + 1;
+			end
+
+			4'b1110: begin
 			    $display("OUT");
 			    out_reg <= a_reg;
 			    pc_reg <= pc_reg + 1;
 			end
 
-			4'b1001: begin
+			4'b1111: begin
 			    $display("HLT");
 			    cpu_halt <= 1;
 			end
-
-			default: pc_reg <= pc_reg + 1;
 		endcase
 
 		prev_op <= instruction;
@@ -163,11 +178,17 @@ always @(posedge clk) begin
 	    if (prev_op == 4'b0010) begin
 	    	a_reg <= alu_out;
 	    	pc_reg <= pc_reg + 1;
+
+			flag_zero <= flag_zero_w;
+			flag_carry <= flag_carry_w;
 	    end
 	    else if (prev_op == 4'b0011) begin
 	    	a_reg <= alu_out;
 	    	sub_op <= 0;
 	    	pc_reg <= pc_reg + 1;
+
+			flag_zero <= flag_zero_w;
+			flag_carry <= flag_carry_w;
 	    end
 
 	    cycle <= CYCLE_FETCH;
