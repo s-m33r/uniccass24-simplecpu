@@ -54,8 +54,8 @@ simplecpu simplecpu (
 	.load_addr (la_data_in[4:1] ),
 	.load_data (la_data_in[12:5]),
 
-	.out_port  (io_out[7:0]     ),
-	.io_oeb    (io_oeb[7:0]     )
+	.out_port  (io_out[12:5]     ),
+	.io_oeb    (io_oeb[12:5]     )
 );
 
 endmodule
